@@ -57,13 +57,10 @@ func directorySizesSum(input: [String]) -> (Int, Int) {
     
     var bestSizeToDelete = Int.max
     var bestDiff = Int.max
-    for size in dirSizes {
-        if size > mustFree {
-            let diff = size - mustFree
-            if diff < bestDiff {
-                bestDiff = diff
-                bestSizeToDelete = size
-            }
+    dirSizes.forEach {
+        if $0 > mustFree && ($0 - mustFree) < bestDiff {
+            bestDiff = $0 - mustFree
+            bestSizeToDelete = $0
         }
     }
     
