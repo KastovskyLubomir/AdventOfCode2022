@@ -51,9 +51,6 @@ func printDisplay(input: [String]) {
     }
 }
 
-let string = "Jack,John,Frank"
-print(stringWordArrayToArrayOfWords(input: string, separators: [","]))
-
 let program = prepareInput(input: inputString)
 print("Part 1: \(sumSignals(input: program))")
 let display = drawing(input: program)
