@@ -104,5 +104,5 @@ let visitedSet = Set(tailPath.map { String($0.x) + "," + String($0.y) })
 print("Part 1: \(visitedSet.count)")
 
 let longRopePath = longRope(input: headPath)
-let endOfRopeSet = Set( longRopePath.map { String($0.x) + "," + String($0.y) } )
+let endOfRopeSet = Set(longRopePath.map { String($0.x) + "," + String($0.y) })
 print("Part 2: \(endOfRopeSet.count)")
