@@ -11,44 +11,30 @@ import Foundation
 typealias Map = [[Int]]
 
 func getDimensions(input: [String]) -> (minx: Int, miny: Int, maxx: Int, maxy: Int) {
-    var minx = Int.max
-    var miny = Int.max
-    var maxx = Int.min
-    var maxy = Int.min
-    
+    var xx = Set<Int>()
+    var yy = Set<Int>()
     input.forEach { line in
         let parts = line.components(separatedBy: ["-", ">", " "]).filter { !$0.isEmpty }
         parts.forEach { part in
             let pos = part.components(separatedBy: ",")
-            let x = Int(pos[0])!
-            let y = Int(pos[1])!
-            if x < minx {
-                minx = x
-            }
-            if x > maxx {
-                maxx = x
-            }
-            if y < miny {
-                miny = y
-            }
-            if y > maxy {
-                maxy = y
-            }
+            xx.insert(Int(pos[0])!)
+            yy.insert(Int(pos[1])!)
         }
     }
-    return (minx, 0, maxx, maxy)
+    return (xx.min()!, 0, xx.max()!, yy.max()!)
 }
 
 func createMap(input: [String], bigMap: Bool = false) -> Map {
     var map = Map()
     let dimensions = getDimensions(input: input)
-    if !bigMap {
-        for _ in dimensions.miny...dimensions.maxy {
-            map.append([Int].init(repeating: 0, count: dimensions.maxx - dimensions.minx + 1))
-        }
-    } else {
+    if bigMap {
         for _ in dimensions.miny...(dimensions.maxy+3)  {
             map.append([Int].init(repeating: 0, count: dimensions.maxx - dimensions.minx + 2*(dimensions.maxy-dimensions.miny)))
+        }
+    } else {
+        
+        for _ in dimensions.miny...dimensions.maxy {
+            map.append([Int].init(repeating: 0, count: dimensions.maxx - dimensions.minx + 1))
         }
     }
     input.forEach { line in
@@ -61,26 +47,16 @@ func createMap(input: [String], bigMap: Bool = false) -> Map {
             var x2 = Int(pos2[0])!
             var y2 = Int(pos2[1])!
             if x > x2 {
-                let tmp = x
-                x = x2
-                x2 = tmp
+                swap(&x, &x2)
             }
             if y > y2 {
-                let tmp = y
-                y = y2
-                y2 = tmp
+                swap(&y, &y2)
             }
             for xx in x...x2 {
                 for yy in y...y2 {
-                    if !bigMap {
-                        let nx = xx - dimensions.minx
-                        let ny = yy - dimensions.miny
-                        map[ny][nx] = 1
-                    } else {
-                        let nx = xx - dimensions.minx + map[0].count/2
-                        let ny = yy - dimensions.miny
-                        map[ny][nx] = 1
-                    }
+                    let nx = xx - dimensions.minx + (bigMap ? map[0].count/2 : 0)
+                    let ny = yy - dimensions.miny
+                    map[ny][nx] = 1
                 }
             }
         }
@@ -128,7 +104,8 @@ func sandPouring(minx: Int, map: inout Map, bigMap: Bool = false) -> Int {
     return sandCounter
 }
 
-func printMap(map: Map) {
+func printMap(map: Map) -> String {
+    var result = ""
     map.forEach { line in
         let strline = line.map {
             if $0 == 0 {
@@ -140,16 +117,34 @@ func printMap(map: Map) {
                 return "O"
             }
         }
-        print("\(String(strline.joined()))")
+        result.append(String(strline.joined()))
+        result.append("\n")
     }
-    print("---")
+    result.append("----\n")
+    return result
 }
 
 let input = readLinesRemoveEmpty(str: inputString)
 
 let dimensions = getDimensions(input: input)
-var map = createMap(input: input)
-print("Part 1: \(sandPouring(minx: dimensions.minx, map: &map))")
 
+let startTime = DispatchTime.now()
+var map = createMap(input: input)
+let part1 = sandPouring(minx: dimensions.minx, map: &map)
+let endTime = DispatchTime.now()
+let nanoTime = endTime.uptimeNanoseconds - startTime.uptimeNanoseconds // <<<<< Difference in nano seconds (UInt64)
+let timeInterval = Double(nanoTime) / 1_000_000_000
+
+print("Part 1: \(part1), time: \(timeInterval)")
+
+let startTime2 = DispatchTime.now()
 var bigMap = createMap(input: input, bigMap: true)
-print("Part 2: \(sandPouring(minx: dimensions.minx, map: &bigMap, bigMap: true))")
+let part2 = sandPouring(minx: dimensions.minx, map: &bigMap, bigMap: true)
+let endTime2 = DispatchTime.now()
+let nanoTime2 = endTime2.uptimeNanoseconds - startTime2.uptimeNanoseconds // <<<<< Difference in nano seconds (UInt64)
+let timeInterval2 = Double(nanoTime2) / 1_000_000_000
+
+print("Part 2: \(part2), time: \(timeInterval2)")
+
+let output = printMap(map: bigMap)
+outputToFile(output: output)

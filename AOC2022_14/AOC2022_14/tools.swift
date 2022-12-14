@@ -26,6 +26,18 @@ func getStringBytes(str: String) -> [UInt8] {
     return buf1
 }
 
+func swap<T>(_ a: inout T,_ b: inout T) {
+    (a, b) = (b, a)
+}
+
+func outputToFile(output: String) {
+    let fileManager = FileManager.default
+    let fileDir: String = fileManager.currentDirectoryPath
+    let filePath: String = fileDir.appending("/../output.txt")
+    let outputData = output.data(using: .utf8)
+    fileManager.createFile(atPath: filePath, contents: outputData)
+}
+
 let fileManager = FileManager.default
 let fileDir: String = fileManager.currentDirectoryPath
 let filePath: String = fileDir.appending("/../input.txt")
